@@ -1,0 +1,55 @@
+version: "3"
+services:
+  mysql:
+    build: ./mysql/
+    env_file: ./mysql/mysql.env
+    environment:
+      - TZ=Asia/Tokyo
+
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/conf:/etc/mysql/conf.d/:ro
+      - mysqldata:/var/lib/mysql
+    networks:
+      - backend
+  app:
+    build: .
+    container_name: node_docker_app
+    environment:
+      - DEBUG=app:*
+
+    tty: true
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - ./src:/app
+
+    working_dir: /app
+
+    command: npm start
+
+    networks:
+      - backend
+    depends_on:
+      - mysql
+
+  # frontend:
+  #   container_name: web
+  #   build: ./frontend/web
+  #   ports:
+  #     - 8080:8080
+  #   privileged: true
+  #   volumes:
+  #     - ./server:/app:cached
+  #   tty: true
+  #   stdin_open: true
+  #   command: npm start
+networks:
+  backend:
+
+volumes:
+  mysqldata:
+  vue-cli-node-volume:
